@@ -3,12 +3,12 @@ import { v1 } from '@google-cloud/livestream'
 const { LivestreamServiceClient } = v1
 const livestreamServiceClient = new LivestreamServiceClient()
 
-const projectId = 'streaming-cli-001'
-const location = 'us-central1'
-const inputId = 'my-input'
-const channelId = 'my-channel'
-const outputUri = 'gs://streaming-cli-001'
-
+const projectId = process.env['PROJECT'] ?? ''
+const location = process.env['LOCATION'] ?? ''
+const inputId = process.env['INPUT_ID'] ?? ''
+const channelId = process.env['CHANNEL_ID'] ?? ''
+const outputUri = 'gs://' + process.env['PROJECT'] ?? ''
+ 
 export async function createInput() {
     const request : any = {
         parent: livestreamServiceClient.locationPath(projectId, location),

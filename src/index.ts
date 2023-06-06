@@ -1,5 +1,10 @@
-import { createInput, createChannel, startChannel } from './livestream'
+import { config } from "dotenv"
+config()
 
-await createInput()
-await createChannel()
-await startChannel()
+import { createChannel, createInput, startChannel } from "./livestream"
+
+(async () => {
+    await createInput()
+    await createChannel()
+    await startChannel()
+})()
