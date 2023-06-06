@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/livestream": "^0.5.1"
+    "@google-cloud/livestream": "^0.5.1",
+    "dotenv": "^16.1.4"
   },
   "devDependencies": {
     "typescript": "^5.1.3"
