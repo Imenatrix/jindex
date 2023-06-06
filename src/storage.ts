@@ -4,15 +4,27 @@ const bucketName = process.env['PROJECT'] ?? 'livestream'
 
 // TODO: Implement in javascript
 export function createBucket() {
-	exec(`gsutil mb gs://${bucketName}`)
+    return new Promise<void>((resolve, reject) => {
+        exec(`gsutil mb gs://${bucketName}`, (error, stdout, sterr) => {
+            resolve()
+        })
+    })
 }
 
 // TODO: Implement in javascript
 export function makeBucketPublic() {
-    exec(`gcloud storage buckets add-iam-policy-binding gs://${bucketName} --member=allUsers --role=roles/storage.objectViewer`)
+    return new Promise<void>((resolve, reject) => {
+        exec(`gcloud storage buckets add-iam-policy-binding gs://${bucketName} --member=allUsers --role=roles/storage.objectViewer`, (error, stdout, sterr) => {
+            resolve()
+        })
+    })
 }
 
 // TODO: Implement in javascript
 export function setupBucketCors() {
-    exec(`gsutil cors set cors.json gs://${bucketName}`)
+    return new Promise<void>((resolve, reject) => {
+        exec(`gsutil cors set cors.json gs://${bucketName}`, (error, stdout, sterr) => {
+            resolve()
+        })
+    })
 }
