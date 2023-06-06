@@ -1,7 +1,7 @@
 import { config } from "dotenv"
 config()
 
-import { createChannel, createInput, startChannel } from "./livestream"
+import { createChannel, createInput, getInput, startChannel } from "./livestream"
 import { setup } from "./setup"
 
 (async () => {
@@ -9,4 +9,6 @@ import { setup } from "./setup"
     await createInput()
     await createChannel()
     await startChannel()
+    const input = await getInput();
+    console.log(input.uri)
 })()

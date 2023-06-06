@@ -105,3 +105,11 @@ export async function startChannel() {
     await operation.promise()
     console.log('Started channel')
 }
+
+export async function getInput() {
+  const request = {
+    name: livestreamServiceClient.inputPath(projectId, location, inputId),
+  }
+  const [input] = await livestreamServiceClient.getInput(request)
+  return input
+}
