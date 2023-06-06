@@ -10,7 +10,7 @@ const channelId = 'my-channel'
 const outputUri = 'gs://streaming-cli-001'
 
 export async function createInput() {
-    const request = {
+    const request : any = {
         parent: livestreamServiceClient.locationPath(projectId, location),
         inputId: inputId,
         input: {
@@ -25,7 +25,7 @@ export async function createInput() {
 }
 
 export async function createChannel() {
-    const request = {
+    const request : any = {
       parent: livestreamServiceClient.locationPath(projectId, location),
       channelId: channelId,
       channel: {
