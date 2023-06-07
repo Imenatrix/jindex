@@ -2,14 +2,8 @@
 import { v1 } from '@google-cloud/livestream'
 const { LivestreamServiceClient } = v1
 const livestreamServiceClient = new LivestreamServiceClient()
-
-const projectId = process.env['PROJECT'] ?? ''
-const location = process.env['LOCATION'] ?? ''
-const inputId = process.env['INPUT_ID'] ?? ''
-const channelId = process.env['CHANNEL_ID'] ?? ''
-const outputUri = 'gs://' + process.env['PROJECT'] ?? ''
  
-export async function createInput() {
+export async function createInput(projectId : string, location : string, inputId : string) {
     const request : any = {
         parent: livestreamServiceClient.locationPath(projectId, location),
         inputId: inputId,
@@ -24,7 +18,7 @@ export async function createInput() {
     console.log(`Input: ${input.name}`)
 }
 
-export async function createChannel() {
+export async function createChannel(projectId : string, location : string, inputId : string, channelId : string, outputUri : string) {
     const request : any = {
       parent: livestreamServiceClient.locationPath(projectId, location),
       channelId: channelId,
@@ -97,7 +91,7 @@ export async function createChannel() {
     console.log(`Channel: ${channel.name}`)
 }
 
-export async function startChannel() {
+export async function startChannel(projectId : string, location : string, channelId : string) {
     const request = {
       name: livestreamServiceClient.channelPath(projectId, location, channelId),
     }
@@ -106,7 +100,7 @@ export async function startChannel() {
     console.log('Started channel')
 }
 
-export async function getInput() {
+export async function getInput(projectId : string, location : string, inputId : string) {
   const request = {
     name: livestreamServiceClient.inputPath(projectId, location, inputId),
   }

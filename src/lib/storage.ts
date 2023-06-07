@@ -1,9 +1,7 @@
 import { exec } from 'child_process'
 
-const bucketName = process.env['PROJECT'] ?? 'livestream'
-
 // TODO: Implement in javascript
-export function createBucket() {
+export function createBucket(bucketName : string) {
     return new Promise<void>((resolve, reject) => {
         exec(`gsutil mb gs://${bucketName}`, (error, stdout, sterr) => {
             resolve()
@@ -12,7 +10,7 @@ export function createBucket() {
 }
 
 // TODO: Implement in javascript
-export function makeBucketPublic() {
+export function makeBucketPublic(bucketName : string) {
     return new Promise<void>((resolve, reject) => {
         exec(`gcloud storage buckets add-iam-policy-binding gs://${bucketName} --member=allUsers --role=roles/storage.objectViewer`, (error, stdout, sterr) => {
             resolve()
@@ -21,7 +19,7 @@ export function makeBucketPublic() {
 }
 
 // TODO: Implement in javascript
-export function setupBucketCors() {
+export function setupBucketCors(bucketName : string) {
     return new Promise<void>((resolve, reject) => {
         exec(`gsutil cors set cors.json gs://${bucketName}`, (error, stdout, sterr) => {
             resolve()
