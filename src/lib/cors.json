@@ -1,6 +1,6 @@
 [
     {
-      "origin": ["https://shaka-player-demo.appspot.com/"],
+      "origin": ["*"],
       "responseHeader": ["Content-Type", "Range"],
       "method": ["GET", "HEAD"],
       "maxAgeSeconds": 3600
