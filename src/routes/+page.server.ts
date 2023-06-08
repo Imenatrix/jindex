@@ -3,16 +3,26 @@ import '$lib/firebase'
 import { createChannel, createInput, getInput, startChannel } from '$lib/livestream.js'
 import { addDoc, collection, getFirestore, updateDoc } from 'firebase/firestore'
 
+
+function toKebabCase(str: string): string {
+    return str
+        .replace(/([a-z])([A-Z])/g, '$1-$2') // Convert camelCase to kebab-case
+        .replace(/\s+/g, '-') // Replace spaces with dashes
+        .toLowerCase(); // Convert to lowercase
+}
+
 export const actions = {
     create : async ({ request }) => {
         const data = await request.formData()
         const db = getFirestore()
         const cameras = collection(db, 'cameras')
 
-        const name = data.get('name')
-        const inputId = (name as string) + '-input'
-        const channelId = (name as string) + '-channel'
-        const outputUrl = 'gs://' + PROJECT + '/' + (name as string) + '_output'
+        const name = data.get('name') as string
+        const slug = toKebabCase(name)
+        const inputId = slug + '-input'
+        const channelId = slug + '-channel'
+        const outputName = (slug as string) + '_output'
+        const outputUrl = 'gs://' + PROJECT + '/' + outputName
 
         const doc = await addDoc(cameras, {
             name : name,
@@ -25,7 +35,8 @@ export const actions = {
 
         updateDoc(doc, {
             status : 'DONE',
-            uri : input.uri
+            input_uri : input.uri,
+            output_uri : `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
         })
     }
 }
