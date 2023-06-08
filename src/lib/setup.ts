@@ -1,6 +1,7 @@
 import { createBucket, makeBucketPublic, setupBucketCors } from "./storage"
+import { PROJECT } from "$env/static/private"
 
-const bucketName = process.env['PROJECT'] ?? 'livestream'
+const bucketName = PROJECT
 
 export async function setup () {
     await createBucket(bucketName)
