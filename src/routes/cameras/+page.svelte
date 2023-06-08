@@ -1,16 +1,24 @@
 <script lang='ts'>
+	import { getEmbed } from '$lib/embed';
     import '$lib/firebase'
 	import { collection, getDocs, getFirestore, query, where, QuerySnapshot } from 'firebase/firestore';
     import type { DocumentData } from 'firebase/firestore'
 	import { onMount } from 'svelte';
 
-    let cameras : Promise<QuerySnapshot<DocumentData>>;
+    let cameras : Promise<QuerySnapshot<DocumentData>>
+
+    let hint = false
 
     onMount(async () => {
         const db = getFirestore()
         const col = collection(db, 'cameras')
         cameras = getDocs(col)
     })
+
+    function copy(text : string) {
+        navigator.clipboard.writeText(text)
+        hint = true
+    }
 </script>
 
 <table class="table">
@@ -19,6 +27,7 @@
             <th>Nome</th>
             <th>Input URL</th>
             <th>Stream URL</th>
+            <th>Embed</th>
         </tr>
     </thead>
     <tbody>
@@ -31,6 +40,9 @@
                         <td>{camera.data().name}</td>
                         <td>{camera.data().input_uri}</td>
                         <td>{camera.data().output_uri}</td>
+                        <td class="tooltip" data-tip={hint ? 'Copiar' : 'Copiado!'} on:dragleave={() => hint = false}>
+                            <button class='btn btn-primary' on:click={() => copy(getEmbed(camera.data().output_uri))}>{'</>'}</button>
+                        </td>
                     </tr>
                 {/each}
             {/await}
