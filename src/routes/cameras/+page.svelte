@@ -24,6 +24,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Status</th>
             <th>Nome</th>
             <th>Input URL</th>
             <th>Stream URL</th>
@@ -37,6 +38,21 @@
             {:then { docs }} 
                 {#each docs as camera}
                     <tr>
+                        <td>
+                            {#if camera.data().status == 'CREATING'}
+                                <div class="btn btn-info">Criando...</div>
+                            {:else if camera.data().status == 'ACTIVE'}
+                                <form method='post' action="?/stop">
+                                    <input type="hidden" name="id" value={camera.id}>
+                                    <button class="btn btn-success">Ativa</button>
+                                </form>
+                            {:else if camera.data().status == 'STOPPED'}
+                                <form method='post' action="?/activate">
+                                    <input type="hidden" name="id" value={camera.id}>
+                                    <button class="btn btn-warning">Parada</button>
+                                </form>
+                            {/if}
+                        </td>
                         <td>{camera.data().name}</td>
                         <td>{camera.data().input_uri}</td>
                         <td>{camera.data().output_uri}</td>
