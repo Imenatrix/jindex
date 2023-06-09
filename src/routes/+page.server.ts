@@ -34,7 +34,7 @@ export const actions = {
         const input = await getInput(PROJECT, LOCATION, inputId)
 
         updateDoc(doc, {
-            status : 'DONE',
+            status : 'ACTIVE',
             input_uri : input.uri,
             output_uri : `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
         })
