@@ -107,3 +107,12 @@ export async function getInput(projectId : string, location : string, inputId : 
   const [input] = await livestreamServiceClient.getInput(request)
   return input
 }
+
+export async function stopChannel(projectId : string, location : string, channelId : string) {
+  const request = {
+    name: livestreamServiceClient.channelPath(projectId, location, channelId),
+  };
+  const [operation] = await livestreamServiceClient.stopChannel(request);
+  await operation.promise();
+  console.log('Stopped channel');
+}
