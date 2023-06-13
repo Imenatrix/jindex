@@ -111,8 +111,26 @@ export async function getInput(projectId : string, location : string, inputId : 
 export async function stopChannel(projectId : string, location : string, channelId : string) {
   const request = {
     name: livestreamServiceClient.channelPath(projectId, location, channelId),
-  };
+  }
   const [operation] = await livestreamServiceClient.stopChannel(request);
+  await operation.promise()
+  console.log('Stopped channel')
+}
+
+export async function deleteChannel(projectId : string, location : string, channelId : string) {
+  const request = {
+    name: livestreamServiceClient.channelPath(projectId, location, channelId),
+  }
+  const [operation] = await livestreamServiceClient.deleteChannel(request);
   await operation.promise();
-  console.log('Stopped channel');
+  console.log('Deleted channel');
+}
+
+export async function deleteInput(projectId : string, location : string, inputId : string) {
+  const request = {
+    name: livestreamServiceClient.inputPath(projectId, location, inputId),
+  };
+  const [operation] = await livestreamServiceClient.deleteInput(request);
+  await operation.promise();
+  console.log('Deleted input');
 }
