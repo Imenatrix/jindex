@@ -59,6 +59,12 @@
                         <td class="tooltip" data-tip={hint ? 'Copiar' : 'Copiado!'} on:dragleave={() => hint = false}>
                             <button class='btn btn-primary' on:click={() => copy(getEmbed(camera.data().output_uri))}>{'</>'}</button>
                         </td>
+                        <td>
+                            <form method='post' action="?/delete">
+                                <input type="hidden" name="id" value={camera.id}>
+                                <button class="btn btn-error btn-square text-white">X</button>
+                            </form>
+                        </td>
                     </tr>
                 {/each}
             {/await}
