@@ -3,6 +3,7 @@ import { run } from "$lib/utils/cli";
 import { toKebabCase } from "$lib/utils/strings";
 import type { ICamera } from "./ICamera";
 import type { ChildProcess } from 'child_process'
+import processes from "../repositories/Processes";
 
 export class RTSPCamera implements ICamera {
 
@@ -45,14 +46,28 @@ export class RTSPCamera implements ICamera {
             `"https://lateral-land-389613.storage.googleapis.com/${outputName}/manifest.m3u8"`,
         ].join(' ')
         this.status = 'STOPPED'
-        return
     }
 
     async start() {
         if (this.command != undefined) {
             this.#process = run(this.command)
+            processes[this.name] = this.#process
+            this.status = 'ACTIVE' 
         }
-        this.status = 'ACTIVE' 
-        return
+    }
+
+    async stop() {
+        if (this.#process != null) {
+            this.#process.kill()
+            this.status = 'STOPPED'
+        }
+        else {
+            processes[this.name]?.kill()
+            this.status = 'STOPPED'
+        }
+    }
+
+    async delete() {
+        await this.stop()
     }
 }

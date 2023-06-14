@@ -1,5 +1,5 @@
 import type { ICamera } from "./ICamera"
-import { createChannel, createInput, getInput, startChannel } from "$lib/livestream"
+import { createChannel, createInput, deleteChannel, deleteInput, getInput, startChannel, stopChannel } from "$lib/livestream"
 import { toKebabCase } from "$lib/utils/strings"
 import { LOCATION, PROJECT } from "$env/static/private"
 
@@ -46,6 +46,21 @@ export class RTMPCamera implements ICamera {
         const channelId = slug + '-channel'
         await startChannel(PROJECT, LOCATION, channelId)
         this.status = 'ACTIVE'
-        return
+    }
+
+    async stop() {
+        const slug = toKebabCase(this.name)
+        const channelId = slug + '-channel'
+        await stopChannel(PROJECT, LOCATION, channelId)
+        this.status = 'STOPPED'
+    }
+
+    async delete() {
+        const slug = toKebabCase(this.name)
+        const inputId = slug + '-input'
+        const channelId = slug + '-channel'
+        await stopChannel(PROJECT, LOCATION, channelId)
+        await deleteChannel(PROJECT, LOCATION, channelId)
+        await deleteInput(PROJECT, LOCATION, inputId)
     }
 }
