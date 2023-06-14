@@ -1,60 +1,27 @@
-import { LOCATION, PROJECT } from '$env/static/private'
+import { CameraFactory } from '$lib/factories/CameraFactory';
 import '$lib/firebase'
-import { createChannel, createInput, getInput, startChannel } from '$lib/livestream.js'
-import { coiso } from '$lib/rtsp.js';
+import { error } from '@sveltejs/kit';
 import { addDoc, collection, getFirestore, updateDoc } from 'firebase/firestore'
 
 
-function toKebabCase(str: string): string {
-    return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2') // Convert camelCase to kebab-case
-        .replace(/\s+/g, '-') // Replace spaces with dashes
-        .toLowerCase(); // Convert to lowercase
-}
-
 export const actions = {
     create : async ({ request }) => {
-        const data = await request.formData()
         const db = getFirestore()
-        const cameras = collection(db, 'cameras')
-
+        const cameras = collection(db, 'cameras') 
+        
+        const data = await request.formData()
+        const name = data.get('name') as string
         const protocol = data.get('protocol') as 'RTMP' | 'RTSP'
+        const url = data.get('url') as string | undefined
 
-        if (protocol == 'RTMP') {
-            const name = data.get('name') as string
-            const slug = toKebabCase(name)
-            const inputId = slug + '-input'
-            const channelId = slug + '-channel'
-            const outputName = (slug as string) + '_output'
-            const outputUrl = 'gs://' + PROJECT + '/' + outputName
-
-            const doc = await addDoc(cameras, {
-                name : name,
-                status : 'CREATING'
-            })
-            await createInput(PROJECT, LOCATION, inputId)
-            await createChannel(PROJECT, LOCATION, inputId, channelId, outputUrl)
-            await startChannel(PROJECT, LOCATION, channelId)
-            const input = await getInput(PROJECT, LOCATION, inputId)
-
-            updateDoc(doc, {
-                status : 'ACTIVE',
-                input_uri : input.uri,
-                output_uri : `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
-            })
+        const camera = CameraFactory.create(protocol, name, url)
+        if (camera instanceof Error) {
+            console.log(camera)
+            throw error(500, camera.message)
         }
-        else {
-            const input_uri = data.get('url') as string
-            const name = data.get('name') as string
-            const slug = toKebabCase(name)
-            const outputName = (slug as string) + '_output'
-            coiso(input_uri, outputName)
-            addDoc(cameras, {
-                name : name,
-                status : 'ACTIVE',
-                input_uri : input_uri,
-                output_uri : `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
-            })
-        }
+        const doc = await addDoc(cameras, {...camera})
+        await camera.setup()
+        await camera.start()
+        updateDoc(doc, {...camera})
     }
 }
