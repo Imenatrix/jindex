@@ -14,10 +14,16 @@ export class RTSPCamera implements ICamera {
     #process : ChildProcess | null = null
     output_uri: string
 
-    constructor(name : string, input_uri : string) {
+    constructor(name : string, input_uri : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', command? : string) {
         this.name = name
         this.input_uri = input_uri
         this.status = 'CREATING'
+        if (status != undefined) {
+            this.status = status
+        }
+        if (command != undefined) {
+            this.command = command
+        }
         const slug = toKebabCase(this.name)
         const outputName = slug + '-output'
         this.output_uri = `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`

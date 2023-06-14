@@ -11,9 +11,14 @@ export class RTMPCamera implements ICamera {
     input_uri : string | null = null
     output_uri: string
 
-    constructor(name : string) {
+    constructor(name : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED' ) {
         this.name = name
-        this.status = 'CREATING'
+        if (status != undefined) {
+            this.status = status
+        }
+        else {
+            this.status = 'CREATING'
+        }
         const slug = toKebabCase(this.name)
         const outputName = slug + '-output'
         this.output_uri = `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
