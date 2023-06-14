@@ -6,6 +6,7 @@ import { LOCATION, PROJECT } from "$env/static/private"
 export class RTMPCamera implements ICamera {
 
     name : string
+    protocol : 'RTMP' | 'RTSP' = 'RTMP'
     status : 'CREATING' | 'ACTIVE' | 'STOPPED'
     input_uri : string | null = null
     output_uri: string

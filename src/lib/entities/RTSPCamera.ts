@@ -8,6 +8,7 @@ export class RTSPCamera implements ICamera {
 
     name : string
     input_uri : string
+    protocol : 'RTMP' | 'RTSP' = 'RTSP'
     status : 'CREATING' | 'ACTIVE' | 'STOPPED'
     command : string | null = null
     #process : ChildProcess | null = null
