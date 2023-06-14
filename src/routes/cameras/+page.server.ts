@@ -1,14 +1,6 @@
-import { LOCATION, PROJECT } from '$env/static/private';
+import { CameraFactory } from '$lib/factories/CameraFactory.js';
 import '$lib/firebase'
-import { deleteChannel, deleteInput, startChannel, stopChannel } from '$lib/livestream';
 import { deleteDoc, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-
-function toKebabCase(str: string): string {
-    return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2') // Convert camelCase to kebab-case
-        .replace(/\s+/g, '-') // Replace spaces with dashes
-        .toLowerCase(); // Convert to lowercase
-}
 
 export const actions = {
     stop : async ({ request }) => {
@@ -16,50 +8,34 @@ export const actions = {
         const id = data.get('id') as string
         const db = getFirestore()
 
-        const ref = doc(db, 'cameras', id)
-        const camera = await getDoc(ref)
+        const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        const camera = await getDoc(ref).then(value => value.data())
 
-        const name = camera.data()?.name as string
-        const slug = toKebabCase(name)
-        const channelId = slug + '-channel'
-        await stopChannel(PROJECT, LOCATION, channelId)
+        camera?.stop()
 
-        updateDoc(ref, {
-            status : 'STOPPED'
-        })
+        updateDoc(ref, {...camera})
     },
     activate : async ({ request }) => {
         const data = await request.formData()
         const id = data.get('id') as string
         const db = getFirestore()
 
-        const ref = doc(db, 'cameras', id)
-        const camera = await getDoc(ref)
+        const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        const camera = await getDoc(ref).then(value => value.data())
 
-        const name = camera.data()?.name as string
-        const slug = toKebabCase(name)
-        const channelId = slug + '-channel'
-        await startChannel(PROJECT, LOCATION, channelId)
+        camera?.start()
 
-        updateDoc(ref, {
-            status : 'ACTIVE'
-        })
+        updateDoc(ref, {...camera})
     },
     delete : async ({ request }) => {
         const data = await request.formData()
         const id = data.get('id') as string
         const db = getFirestore()
 
-        const ref = doc(db, 'cameras', id)
-        const camera = await getDoc(ref)
+        const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        const camera = await getDoc(ref).then(value => value.data())
 
-        const name = camera.data()?.name as string
-        const slug = toKebabCase(name)
-        const inputId = slug + '-input'
-        const channelId = slug + '-channel'
-        await stopChannel(PROJECT, LOCATION, channelId)
-        await deleteChannel(PROJECT, LOCATION, channelId)
-        await deleteInput(PROJECT, LOCATION, inputId)
+        camera?.delete()
 
         deleteDoc(ref)
     }
