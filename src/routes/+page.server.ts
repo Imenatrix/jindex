@@ -22,7 +22,7 @@ export const actions = {
         const doc = await addDoc(cameras, {...camera})
         await camera.setup()
         await camera.start()
-        updateDoc(doc, {...camera})
+        await updateDoc(doc, {...camera})
     },
     stop : async ({ request }) => {
         const data = await request.formData()
@@ -30,11 +30,12 @@ export const actions = {
         const db = getFirestore()
 
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        await updateDoc(ref, {status : 'STOPPING'})
         const camera = await getDoc(ref).then(value => value.data())
 
         await camera?.stop()
 
-        updateDoc(ref, {...camera})
+        await updateDoc(ref, {...camera})
     },
     start : async ({ request }) => {
         const data = await request.formData()
@@ -42,11 +43,12 @@ export const actions = {
         const db = getFirestore()
 
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        await updateDoc(ref, {status : 'ACTIVATING'})
         const camera = await getDoc(ref).then(value => value.data())
 
         await camera?.start()
 
-        updateDoc(ref, {...camera})
+        await updateDoc(ref, {...camera})
     },
     delete : async ({ request }) => {
         const data = await request.formData()
@@ -54,6 +56,7 @@ export const actions = {
         const db = getFirestore()
 
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
+        await updateDoc(ref, {status : 'DELETING'})
         const camera = await getDoc(ref).then(value => value.data())
 
         await camera?.delete()
