@@ -11,7 +11,7 @@ export const actions = {
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
         const camera = await getDoc(ref).then(value => value.data())
 
-        camera?.stop()
+        await camera?.stop()
 
         updateDoc(ref, {...camera})
     },
@@ -23,7 +23,7 @@ export const actions = {
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
         const camera = await getDoc(ref).then(value => value.data())
 
-        camera?.start()
+        await camera?.start()
 
         updateDoc(ref, {...camera})
     },
@@ -35,7 +35,7 @@ export const actions = {
         const ref = doc(db, 'cameras', id).withConverter(CameraFactory.converter)
         const camera = await getDoc(ref).then(value => value.data())
 
-        camera?.delete()
+        await camera?.delete()
 
         deleteDoc(ref)
     }
