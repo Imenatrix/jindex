@@ -15,7 +15,7 @@ export const actions = {
 
         updateDoc(ref, {...camera})
     },
-    activate : async ({ request }) => {
+    start : async ({ request }) => {
         const data = await request.formData()
         const id = data.get('id') as string
         const db = getFirestore()

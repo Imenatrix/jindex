@@ -35,7 +35,7 @@
         {#if cameras != undefined}
             {#await cameras}
                 <div class="loading loading-spinner"></div>
-            {:then { docs }} 
+            {:then { docs }}
                 {#each docs as camera}
                     <tr>
                         <td>
@@ -47,7 +47,7 @@
                                     <button class="btn btn-success">Ativa</button>
                                 </form>
                             {:else if camera.data().status == 'STOPPED'}
-                                <form method='post' action="?/activate">
+                                <form method='post' action="?/start">
                                     <input type="hidden" name="id" value={camera.id}>
                                     <button class="btn btn-warning">Parada</button>
                                 </form>
