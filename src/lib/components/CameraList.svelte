@@ -2,22 +2,25 @@
     import '$lib/firebase'
 	import { onMount } from 'svelte';
 	import { getEmbed } from '$lib/embed';
-    import type { DocumentData } from 'firebase/firestore'
-	import { collection, getDocs, getFirestore, QuerySnapshot } from 'firebase/firestore';
+    import { onSnapshot, type DocumentData, query } from 'firebase/firestore'
+	import { collection, getFirestore, QuerySnapshot } from 'firebase/firestore';
+	import { enhance } from '$app/forms';
 
-    let cameras : Promise<QuerySnapshot<DocumentData>>
+    let cameras : QuerySnapshot<DocumentData>
 
-    let hint = false
+    let hint = true
 
     onMount(async () => {
         const db = getFirestore()
         const col = collection(db, 'cameras')
-        cameras = getDocs(col)
+        onSnapshot(query(col), (querySnapshot) => {
+            cameras = querySnapshot
+        })
     })
 
     function copy(text : string) {
         navigator.clipboard.writeText(text)
-        hint = true
+        hint = false
     }
 
     export let start : string
@@ -37,41 +40,37 @@
     </thead>
     <tbody>
         {#if cameras != undefined}
-            {#await cameras}
-                <div class="loading loading-spinner"></div>
-            {:then { docs }}
-                {#each docs as camera}
-                    <tr>
-                        <td>
-                            {#if camera.data().status == 'CREATING'}
-                                <div class="btn btn-info">Criando...</div>
-                            {:else if camera.data().status == 'ACTIVE'}
-                                <form method='post' action={stop}>
-                                    <input type="hidden" name="id" value={camera.id}>
-                                    <button class="btn btn-success">Ativa</button>
-                                </form>
-                            {:else if camera.data().status == 'STOPPED'}
-                                <form method='post' action={start}>
-                                    <input type="hidden" name="id" value={camera.id}>
-                                    <button class="btn btn-warning">Parada</button>
-                                </form>
-                            {/if}
-                        </td>
-                        <td>{camera.data().name}</td>
-                        <td>{camera.data().input_uri}</td>
-                        <td>{camera.data().output_uri}</td>
-                        <td class="tooltip" data-tip={hint ? 'Copiar' : 'Copiado!'} on:dragleave={() => hint = false}>
-                            <button class='btn btn-primary' on:click={() => copy(getEmbed(camera.data().output_uri))}>{'</>'}</button>
-                        </td>
-                        <td>
-                            <form method='post' action={destroy}>
+            {#each cameras.docs as camera}
+                <tr>
+                    <td>
+                        {#if camera.data().status == 'CREATING'}
+                            <div class="btn btn-info">Criando...</div>
+                        {:else if camera.data().status == 'ACTIVE'}
+                            <form method='post' action={stop} use:enhance>
                                 <input type="hidden" name="id" value={camera.id}>
-                                <button class="btn btn-error btn-square text-white">X</button>
+                                <button class="btn btn-success">Ativa</button>
                             </form>
-                        </td>
-                    </tr>
-                {/each}
-            {/await}
+                        {:else if camera.data().status == 'STOPPED'}
+                            <form method='post' action={start} use:enhance>
+                                <input type="hidden" name="id" value={camera.id}>
+                                <button class="btn btn-warning">Parada</button>
+                            </form>
+                        {/if}
+                    </td>
+                    <td>{camera.data().name}</td>
+                    <td>{camera.data().input_uri}</td>
+                    <td>{camera.data().output_uri}</td>
+                    <td class="tooltip" data-tip={hint ? 'Copiar' : 'Copiado!'} on:pointerleave={() => hint = true}>
+                        <button class='btn btn-primary' on:click={() => copy(getEmbed(camera.data().output_uri))}>{'</>'}</button>
+                    </td>
+                    <td>
+                        <form method='post' action={destroy} use:enhance>
+                            <input type="hidden" name="id" value={camera.id}>
+                            <button class="btn btn-error btn-square text-white">X</button>
+                        </form>
+                    </td>
+                </tr>
+            {/each}
         {/if}
     </tbody>
 </table>
