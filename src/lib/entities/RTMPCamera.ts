@@ -11,8 +11,9 @@ export class RTMPCamera implements ICamera {
     input_uri : string | null = null
     output_uri: string
 
-    constructor(name : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED' ) {
+    constructor(name : string, input_uri? : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED' ) {
         this.name = name
+        this.input_uri = input_uri === undefined ? null : input_uri
         if (status != undefined) {
             this.status = status
         }

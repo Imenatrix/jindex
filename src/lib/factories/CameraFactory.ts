@@ -30,7 +30,7 @@ export class CameraFactory {
                 return new RTSPCamera(data.name, data.input_uri, data.status, data.command)
             }
             else {
-                return new RTMPCamera(data.name, data.status)
+                return new RTMPCamera(data.name, data.input_uri, data.status)
             }
         }
     }
