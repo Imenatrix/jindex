@@ -1,7 +1,7 @@
 export interface ICamera {
     name : string,
     protocol : 'RTMP' | 'RTSP'
-    status : 'CREATING' | 'ACTIVE' | 'STOPPED',
+    status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING',
     input_uri : string | null,
     output_uri : string,
     start : () => Promise<void>,

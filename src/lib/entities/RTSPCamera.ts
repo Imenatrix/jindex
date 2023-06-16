@@ -10,7 +10,7 @@ export class RTSPCamera implements ICamera {
     name : string
     input_uri : string
     protocol : 'RTMP' | 'RTSP' = 'RTSP'
-    status : 'CREATING' | 'ACTIVE' | 'STOPPED'
+    status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
     command : string | null = null
     #process : ChildProcess | null = null
     output_uri: string
@@ -52,7 +52,7 @@ export class RTSPCamera implements ICamera {
         if (this.command != undefined) {
             this.#process = run(this.command)
             processes[this.name] = this.#process
-            this.status = 'ACTIVE' 
+            this.status = 'ACTIVE'
         }
     }
 

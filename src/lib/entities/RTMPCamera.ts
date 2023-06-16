@@ -7,7 +7,7 @@ export class RTMPCamera implements ICamera {
 
     name : string
     protocol : 'RTMP' | 'RTSP' = 'RTMP'
-    status : 'CREATING' | 'ACTIVE' | 'STOPPED'
+    status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
     input_uri : string | null = null
     output_uri: string
 
