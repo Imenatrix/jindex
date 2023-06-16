@@ -43,7 +43,11 @@
             {#each cameras.docs as camera}
                 <tr>
                     <td>
-                        {#if camera.data().status == 'CREATING'}
+                        {#if ['ACTIVATING', 'STOPPING'].includes(camera.data().status)}
+                            <div class="btn btn-info">
+                                <div class="loading loading-spinner"></div>
+                            </div>
+                        {:else if camera.data().status == 'CREATING'}
                             <div class="btn btn-info">Criando...</div>
                         {:else if camera.data().status == 'ACTIVE'}
                             <form method='post' action={stop} use:enhance>
@@ -64,10 +68,16 @@
                         <button class='btn btn-primary' on:click={() => copy(getEmbed(camera.data().output_uri))}>{'</>'}</button>
                     </td>
                     <td>
-                        <form method='post' action={destroy} use:enhance>
-                            <input type="hidden" name="id" value={camera.id}>
-                            <button class="btn btn-error btn-square text-white">X</button>
-                        </form>
+                        {#if camera.data().status == 'DELETING'}
+                        <div class="btn btn-error btn-square text-white">
+                            <div class="loading loading-spinner"></div>
+                        </div>
+                        {:else}
+                            <form method='post' action={destroy} use:enhance>
+                                <input type="hidden" name="id" value={camera.id}>
+                                <button class="btn btn-error btn-square text-white">X</button>
+                            </form>
+                        {/if}
                     </td>
                 </tr>
             {/each}
