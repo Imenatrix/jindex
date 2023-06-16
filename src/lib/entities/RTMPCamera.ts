@@ -34,12 +34,12 @@ export class RTMPCamera implements ICamera {
 
         await createInput(PROJECT, LOCATION, inputId)
         await createChannel(PROJECT, LOCATION, inputId, channelId, outputUrl)
-        await startChannel(PROJECT, LOCATION, channelId)
+        //await startChannel(PROJECT, LOCATION, channelId)
         const input = await getInput(PROJECT, LOCATION, inputId)
         if (input.uri != undefined) {
             this.input_uri = input.uri
         }
-        this.status = 'ACTIVE'
+        this.status = 'STOPPED'
     }
 
     async start() {
@@ -50,17 +50,19 @@ export class RTMPCamera implements ICamera {
     }
 
     async stop() {
-        const slug = toKebabCase(this.name)
-        const channelId = slug + '-channel'
-        await stopChannel(PROJECT, LOCATION, channelId)
-        this.status = 'STOPPED'
+        if (this.status == 'ACTIVE') {
+            const slug = toKebabCase(this.name)
+            const channelId = slug + '-channel'
+            await stopChannel(PROJECT, LOCATION, channelId)
+            this.status = 'STOPPED'
+        }
     }
 
     async delete() {
         const slug = toKebabCase(this.name)
         const inputId = slug + '-input'
         const channelId = slug + '-channel'
-        await stopChannel(PROJECT, LOCATION, channelId)
+        this.stop()
         await deleteChannel(PROJECT, LOCATION, channelId)
         await deleteInput(PROJECT, LOCATION, inputId)
     }
