@@ -1,7 +1,7 @@
 import { createBucket, makeBucketPublic, setupBucketCors } from "./storage"
-import { PROJECT } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 
-const bucketName = PROJECT
+const bucketName = env.PROJECT
 
 export async function setup () {
     await createBucket(bucketName)
