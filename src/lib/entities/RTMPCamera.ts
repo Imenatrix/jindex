@@ -1,7 +1,7 @@
 import type { ICamera } from "./ICamera"
 import { createChannel, createInput, deleteChannel, deleteInput, getInput, startChannel, stopChannel } from "$lib/livestream"
 import { toKebabCase } from "$lib/utils/strings"
-import { LOCATION, PROJECT } from "$env/static/private"
+import { env } from "$env/dynamic/private"
 
 export class RTMPCamera implements ICamera {
 
@@ -22,7 +22,7 @@ export class RTMPCamera implements ICamera {
         }
         const slug = toKebabCase(this.name)
         const outputName = slug + '-output'
-        this.output_uri = `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
+        this.output_uri = `https://storage.googleapis.com/${env.PROJECT}/${outputName}/manifest.m3u8`
     }
 
     async setup() {
@@ -30,12 +30,12 @@ export class RTMPCamera implements ICamera {
         const inputId = slug + '-input'
         const channelId = slug + '-channel'
         const outputName = slug + '-output'
-        const outputUrl = 'gs://' + PROJECT + '/' + outputName
+        const outputUrl = 'gs://' + env.PROJECT + '/' + outputName
 
-        await createInput(PROJECT, LOCATION, inputId)
-        await createChannel(PROJECT, LOCATION, inputId, channelId, outputUrl)
-        //await startChannel(PROJECT, LOCATION, channelId)
-        const input = await getInput(PROJECT, LOCATION, inputId)
+        await createInput(env.PROJECT, env.LOCATION, inputId)
+        await createChannel(env.PROJECT, env.LOCATION, inputId, channelId, outputUrl)
+        //await startChannel(env.PROJECT, env.LOCATION, channelId)
+        const input = await getInput(env.PROJECT, env.LOCATION, inputId)
         if (input.uri != undefined) {
             this.input_uri = input.uri
         }
@@ -45,7 +45,7 @@ export class RTMPCamera implements ICamera {
     async start() {
         const slug = toKebabCase(this.name)
         const channelId = slug + '-channel'
-        await startChannel(PROJECT, LOCATION, channelId)
+        await startChannel(env.PROJECT, env.LOCATION, channelId)
         this.status = 'ACTIVE'
     }
 
@@ -53,7 +53,7 @@ export class RTMPCamera implements ICamera {
         if (this.status == 'ACTIVE') {
             const slug = toKebabCase(this.name)
             const channelId = slug + '-channel'
-            await stopChannel(PROJECT, LOCATION, channelId)
+            await stopChannel(env.PROJECT, env.LOCATION, channelId)
             this.status = 'STOPPED'
         }
     }
@@ -63,7 +63,7 @@ export class RTMPCamera implements ICamera {
         const inputId = slug + '-input'
         const channelId = slug + '-channel'
         this.stop()
-        await deleteChannel(PROJECT, LOCATION, channelId)
-        await deleteInput(PROJECT, LOCATION, inputId)
+        await deleteChannel(env.PROJECT, env.LOCATION, channelId)
+        await deleteInput(env.PROJECT, env.LOCATION, inputId)
     }
 }

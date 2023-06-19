@@ -1,4 +1,4 @@
-import { PROJECT } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { run } from "$lib/utils/cli";
 import { toKebabCase } from "$lib/utils/strings";
 import type { ICamera } from "./ICamera";
@@ -27,7 +27,7 @@ export class RTSPCamera implements ICamera {
         }
         const slug = toKebabCase(this.name)
         const outputName = slug + '-output'
-        this.output_uri = `https://storage.googleapis.com/${PROJECT}/${outputName}/manifest.m3u8`
+        this.output_uri = `https://storage.googleapis.com/${env.PROJECT}/${outputName}/manifest.m3u8`
     }
 
     async setup() {
@@ -38,12 +38,12 @@ export class RTSPCamera implements ICamera {
             '-fflags nobuffer',
             '-rtsp_transport tcp',
             `-i "${this.input_uri}"`,
-            `-hls_segment_filename "https://lateral-land-389613.storage.googleapis.com/${outputName}/%03d.ts"`,
+            `-hls_segment_filename "https://${env.PROJECT}.storage.googleapis.com/${outputName}/%03d.ts"`,
             '-vcodec copy',
             '-segment_list_flags live',
             '-method PUT',
             '-headers "Cache-Control: no-cache"',
-            `"https://lateral-land-389613.storage.googleapis.com/${outputName}/manifest.m3u8"`,
+            `"https://${env.PROJECT}.storage.googleapis.com/${outputName}/manifest.m3u8"`,
         ].join(' ')
         this.status = 'STOPPED'
     }
