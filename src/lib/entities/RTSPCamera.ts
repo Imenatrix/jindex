@@ -11,11 +11,11 @@ export class RTSPCamera implements ICamera {
     input_uri : string
     protocol : 'RTMP' | 'RTSP' = 'RTSP'
     status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
-    command : string | null = null
+    command : string[] | null = null
     #process : ChildProcess | null = null
     output_uri: string
 
-    constructor(name : string, input_uri : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', command? : string) {
+    constructor(name : string, input_uri : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', command? : string[]) {
         this.name = name
         this.input_uri = input_uri
         this.status = 'CREATING'
@@ -35,16 +35,16 @@ export class RTSPCamera implements ICamera {
         const outputName = slug + '-output'
         this.command = [
             'ffmpeg',
-            '-fflags nobuffer',
-            '-rtsp_transport tcp',
-            `-i "${this.input_uri}"`,
-            `-hls_segment_filename "https://${env.PROJECT}.storage.googleapis.com/${outputName}/%03d.ts"`,
-            '-vcodec copy',
-            '-segment_list_flags live',
-            '-method PUT',
-            '-headers "Cache-Control: no-cache"',
-            `"https://${env.PROJECT}.storage.googleapis.com/${outputName}/manifest.m3u8"`,
-        ].join(' ')
+            '-fflags', 'nobuffer',
+            '-rtsp_transport', 'tcp',
+            `-i`, `${'rtsp://flowih:surfview123@tombopalanque.ddns.net:2011/cam/realmonitor?channel=1&subtype=0'}`,
+            `-hls_segment_filename`, `https://${env.PROJECT}.storage.googleapis.com/${outputName}/%03d.ts`,
+            '-vcodec', 'copy',
+            '-segment_list_flags', 'live',
+            '-method' ,'PUT',
+            '-headers', 'Cache-Control: no-cache',
+            `https://${env.PROJECT}.storage.googleapis.com/${outputName}/manifest.m3u8`,
+        ]
         this.status = 'STOPPED'
     }
 
