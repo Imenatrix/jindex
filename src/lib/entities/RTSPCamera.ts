@@ -58,11 +58,13 @@ export class RTSPCamera implements ICamera {
 
     async stop() {
         if (this.#process != null) {
-            this.#process.kill()
+            const result = this.#process.kill()
+            console.log('RESULT: ' + result)
             this.status = 'STOPPED'
         }
         else {
-            processes[this.name]?.kill()
+            const result = processes[this.name]?.kill()
+            console.log('RESULT: ' + result)
             this.status = 'STOPPED'
         }
     }
