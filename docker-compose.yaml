@@ -1,0 +1,12 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      args:
+        ORIGIN: http://localhost:3000
+    environment:
+      PROJECT: lateral-land-389613
+      LOCATION: us-central1
+    ports:
+      - 3000:3000
