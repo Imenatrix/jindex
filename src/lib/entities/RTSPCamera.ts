@@ -37,7 +37,7 @@ export class RTSPCamera implements ICamera {
             'ffmpeg',
             '-fflags', 'nobuffer',
             '-rtsp_transport', 'tcp',
-            `-i`, `${'rtsp://flowih:surfview123@tombopalanque.ddns.net:2011/cam/realmonitor?channel=1&subtype=0'}`,
+            `-i`, `${this.input_uri}`,
             `-hls_segment_filename`, `https://${env.PROJECT}.storage.googleapis.com/${outputName}/%03d.ts`,
             '-vcodec', 'copy',
             '-segment_list_flags', 'live',
