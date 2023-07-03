@@ -11,6 +11,7 @@
     creating = true
     return async ({ update }) => {
         creating = false
+        protocol = 'RTMP'
         await update()
     }
 }}>
