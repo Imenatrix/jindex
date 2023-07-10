@@ -82,11 +82,12 @@ function checkForTransmissionStart(process : ChildProcess | null, doc : Document
             const frame = parseInt(params[1])
             if (frame != 0 && !started) {
                 started = true
-                updateDoc(doc, {
-                    events : arrayUnion({
-                        event : 'START',
-                        time : timestamp
-                    })
+                const db = getFirestore()
+                const sessions = collection(db, 'sessions')
+                // TODO: Make the id
+                // TODO: Insert camera.id
+                addDoc(sessions, {
+                    time : timestamp
                 })
             }
         }
