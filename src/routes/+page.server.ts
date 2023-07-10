@@ -85,8 +85,8 @@ function checkForTransmissionStart(process : ChildProcess | null, doc : Document
                 const db = getFirestore()
                 const sessions = collection(db, 'sessions')
                 // TODO: Make the id
-                // TODO: Insert camera.id
                 addDoc(sessions, {
+                    camera_id : doc.id,
                     time : timestamp
                 })
             }

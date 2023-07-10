@@ -1,7 +1,7 @@
 import fs from 'fs'
 import ffmpeg from 'fluent-ffmpeg'
 import '$lib/firebase'
-import { collection, getFirestore, getDocs } from 'firebase/firestore'
+import { collection, getFirestore, getDocs, where, query } from 'firebase/firestore'
 import Downloader from '$lib/services/Downloader'
 import { SessionFactory } from '$lib/factories/SessionFactory.js'
 
@@ -28,7 +28,7 @@ export const actions = {
 
         const db = getFirestore()
 
-        const sessions = (await getDocs(collection(db, 'sessions').withConverter(SessionFactory.converter))).docs.map(doc => doc.data())
+        const sessions = (await getDocs(query(collection(db, 'sessions'), where('camera_id', '==', id)).withConverter(SessionFactory.converter))).docs.map(doc => doc.data())
         const downloader = new Downloader(SEGMENT_LENGTH, sessions)
         const filenames = downloader.getSegmentsBetween(t0, t1)
         makeVideo(filenames)
