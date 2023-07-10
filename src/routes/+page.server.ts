@@ -1,7 +1,8 @@
 import { CameraFactory } from '$lib/factories/CameraFactory';
 import '$lib/firebase'
 import { error } from '@sveltejs/kit';
-import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
+import { DocumentReference, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
+import { ChildProcess } from 'child_process'
 
 
 export const actions = {
@@ -19,10 +20,13 @@ export const actions = {
             console.log(camera)
             throw error(500, camera.message)
         }
-        const doc = await addDoc(cameras, {...camera})
+        const ref = await addDoc(cameras, {...camera})
         await camera.setup()
-        await camera.start()
-        await updateDoc(doc, {...camera})
+        const process = await camera.start()
+        if (process instanceof ChildProcess) {
+            checkForTransmissionStart(process, ref)
+        }
+        await updateDoc(ref, {...camera})
     },
     stop : async ({ request }) => {
         const data = await request.formData()
@@ -46,7 +50,10 @@ export const actions = {
         await updateDoc(ref, {status : 'ACTIVATING'})
         const camera = await getDoc(ref).then(value => value.data())
 
-        await camera?.start()
+        const process = await camera?.start()
+        if (process instanceof ChildProcess) {
+            checkForTransmissionStart(process, ref)
+        }
 
         await updateDoc(ref, {...camera})
     },
@@ -63,4 +70,25 @@ export const actions = {
 
         deleteDoc(ref)
     }
+}
+
+function checkForTransmissionStart(process : ChildProcess | null, doc : DocumentReference) {
+    let started = false
+    process?.stderr?.on('data', (data) => {
+        const timestamp = new Date()
+        const line : string = data.toString()
+        if (line.startsWith('frame')) {
+            const params = line.split('=').map(e => e.split(' ')).flat().filter(e => e != '')
+            const frame = parseInt(params[1])
+            if (frame != 0 && !started) {
+                started = true
+                updateDoc(doc, {
+                    events : arrayUnion({
+                        event : 'START',
+                        time : timestamp
+                    })
+                })
+            }
+        }
+    })
 }
