@@ -54,6 +54,7 @@ export class RTSPCamera implements ICamera {
             processes[this.name] = this.#process
             this.status = 'ACTIVE'
         }
+        return this.#process
     }
 
     async stop() {
