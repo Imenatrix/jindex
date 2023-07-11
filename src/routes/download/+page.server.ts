@@ -4,6 +4,9 @@ import '$lib/firebase'
 import { collection, getFirestore, getDocs, where, query } from 'firebase/firestore'
 import Downloader from '$lib/services/Downloader'
 import { SessionFactory } from '$lib/factories/SessionFactory.js'
+import { Storage } from '@google-cloud/storage'
+import { env } from '$env/dynamic/private'
+import { Readable } from 'stream'
 
 const SEGMENT_LENGTH = 2
 
@@ -28,16 +31,43 @@ export const actions = {
 
         const db = getFirestore()
 
-        const sessions = (await getDocs(query(collection(db, 'sessions'), where('camera_id', '==', id)).withConverter(SessionFactory.converter))).docs.map(doc => doc.data())
+        const sessions = await Promise.all((await getDocs(query(collection(db, 'sessions'), where('camera_id', '==', id)))).docs.map(doc => SessionFactory.converter.fromFirestore(doc, {})))
         const downloader = new Downloader(SEGMENT_LENGTH, sessions)
         const filenames = downloader.getSegmentsBetween(t0, t1)
-        makeVideo(filenames)
+        const out = await makeVideo(filenames)
+        return new Response(out, {
+            status : 200,
+            headers : {
+                'Content-Type': 'video/mp4',
+                'Content-Disposition': 'attachment; filename=video.mp4',
+            },
+        })
     }
 }
 
-function makeVideo(files : string[]) {
-    const videos = files.map(file => fs.readFileSync('output/' + file))
-    const video = Buffer.concat(videos)
-    fs.writeFileSync('video.ts', video)
-    ffmpeg().input('video.ts').output('video.mp4').on('end', () => console.log('Finished')).run()
+async function makeVideo(files : string[]) : Promise<Buffer> {
+    return new Promise(async (resolve, reject) => {
+        const storage = new Storage()
+        const videos = await Promise.all(files.map(async (file) => {
+            const [video] = await storage.bucket(env.PROJECT ?? '').file(file).download()
+            return video
+        }))
+        const video = Buffer.concat(videos)
+        const buffers : Buffer[] = []
+        const command = ffmpeg()
+            .input(Readable.from(video))
+            .audioCodec('aac')
+            .videoCodec('libx264')
+            .format('mpegts')
+            .on('end', () => console.log('Finished'))
+            .pipe()
+        let out : Buffer
+        command.on('data', (chunk : Buffer) => {
+            buffers.push(chunk)
+        })
+        command.on('end', () => {
+            out = Buffer.concat(buffers)
+            resolve(out)
+        })
+    })
 }
