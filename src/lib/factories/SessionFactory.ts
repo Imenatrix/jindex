@@ -25,11 +25,11 @@ export class SessionFactory {
             const slug = toKebabCase(camera?.name ?? '')
             const outputName = slug + '-output'
 
-            const [files] = await storage.bucket(env.PROJECT ?? '').getFiles({prefix : outputName + '/'})
+            const [files] = await storage.bucket(env.PROJECT ?? '').getFiles({prefix : outputName + '/' + data.session_id + '/'})
             const filenames = files.map(file => file.name).filter(file => file.endsWith('.ts'))
             const time = data.time.toDate()
             time.setMilliseconds(0)
-            return new Session(snapshot.id, time, filenames)
+            return new Session(data.session_id, time, filenames)
         }
     }
 }

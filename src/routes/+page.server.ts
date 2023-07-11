@@ -24,7 +24,7 @@ export const actions = {
         await camera.setup()
         const process = await camera.start()
         if (process instanceof ChildProcess) {
-            checkForTransmissionStart(process, ref)
+            checkForTransmissionStart(process, ref, camera.current_session)
         }
         await updateDoc(ref, {...camera})
     },
@@ -52,7 +52,7 @@ export const actions = {
 
         const process = await camera?.start()
         if (process instanceof ChildProcess) {
-            checkForTransmissionStart(process, ref)
+            checkForTransmissionStart(process, ref, camera?.current_session ?? 0)
         }
 
         await updateDoc(ref, {...camera})
@@ -72,7 +72,7 @@ export const actions = {
     }
 }
 
-function checkForTransmissionStart(process : ChildProcess | null, doc : DocumentReference) {
+function checkForTransmissionStart(process : ChildProcess | null, doc : DocumentReference, id : number) {
     let started = false
     process?.stderr?.on('data', (data) => {
         const timestamp = new Date()
@@ -86,6 +86,7 @@ function checkForTransmissionStart(process : ChildProcess | null, doc : Document
                 const sessions = collection(db, 'sessions')
                 // TODO: Make the id
                 addDoc(sessions, {
+                    session_id : id,
                     camera_id : doc.id,
                     time : timestamp
                 })
