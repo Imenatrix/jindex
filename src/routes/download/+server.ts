@@ -1,7 +1,6 @@
 import { SessionFactory } from "$lib/factories/SessionFactory"
 import Downloader from "$lib/services/Downloader"
-import { collection, getDocs, getFirestore, query, where } from "firebase/firestore"
-import fs from 'fs'
+import { collection, getDocs, getFirestore, orderBy, query, where } from "firebase/firestore"
 import { env } from "$env/dynamic/private"
 import { Readable } from 'stream'
 import ffmpeg from 'fluent-ffmpeg'
@@ -17,7 +16,7 @@ export async function POST({ request }) {
 
     const db = getFirestore()
 
-    const sessions = await Promise.all((await getDocs(query(collection(db, 'sessions'), where('camera_id', '==', id)))).docs.map(doc => SessionFactory.converter.fromFirestore(doc, {})))
+    const sessions = await Promise.all((await getDocs(query(collection(db, 'sessions'), where('camera_id', '==', id), orderBy('session_id')))).docs.map(doc => SessionFactory.converter.fromFirestore(doc, {})))
     const downloader = new Downloader(SEGMENT_LENGTH, sessions)
     const filenames = downloader.getSegmentsBetween(t0, t1)
     const out = await makeVideo(filenames)
@@ -45,6 +44,7 @@ async function makeVideo(files : string[]) : Promise<Buffer> {
             .videoCodec('libx264')
             .format('mpegts')
             .on('end', () => console.log('Finished'))
+            .on('error', (err) => console.log(err))
             .pipe()
         let out : Buffer
         command.on('data', (chunk : Buffer) => {
