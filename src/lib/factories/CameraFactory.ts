@@ -27,10 +27,10 @@ export class CameraFactory {
         ): ICamera {
             const data = snapshot.data(options);
             if (data.protocol == 'RTSP') {
-                return new RTSPCamera(data.name, data.input_uri, data.status, data.command)
+                return new RTSPCamera(data.name, data.input_uri, data.status, data.command, data.current_session)
             }
             else {
-                return new RTMPCamera(data.name, data.input_uri, data.status)
+                return new RTMPCamera(data.name, data.input_uri, data.status, data.current_session)
             }
         }
     }

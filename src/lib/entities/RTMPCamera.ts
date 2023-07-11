@@ -9,9 +9,10 @@ export class RTMPCamera implements ICamera {
     protocol : 'RTMP' | 'RTSP' = 'RTMP'
     status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
     input_uri : string | null = null
-    output_uri: string
+    output_uri : string
+    current_session : number = 0
 
-    constructor(name : string, input_uri? : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED' ) {
+    constructor(name : string, input_uri? : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', current_session? : number) {
         this.name = name
         this.input_uri = input_uri === undefined ? null : input_uri
         if (status != undefined) {
@@ -19,6 +20,9 @@ export class RTMPCamera implements ICamera {
         }
         else {
             this.status = 'CREATING'
+        }
+        if (current_session != undefined) {
+            this.current_session = current_session
         }
         const slug = toKebabCase(this.name)
         const outputName = slug + '-output'
@@ -46,6 +50,7 @@ export class RTMPCamera implements ICamera {
         const slug = toKebabCase(this.name)
         const channelId = slug + '-channel'
         await startChannel(env.PROJECT, env.LOCATION, channelId)
+        this.current_session += 1
         this.status = 'ACTIVE'
     }
 

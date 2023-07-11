@@ -6,6 +6,7 @@ export interface ICamera {
     status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING',
     input_uri : string | null,
     output_uri : string,
+    current_session : number,
     start : () => Promise<void | ChildProcess | null>,
     stop : () => Promise<void>,
     delete : () => Promise<void>,
