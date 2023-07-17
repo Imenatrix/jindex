@@ -3,6 +3,9 @@ import '$lib/firebase'
 import { error } from '@sveltejs/kit';
 import { DocumentReference, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import type { ChildProcess } from 'child_process'
+import type { ICamera } from '$lib/entities/ICamera.js';
+import allocatedPorts from '$lib/repositories/AllocatedPorts.js';
+import { RTMPCamera } from '$lib/entities/RTMPCamera.js';
 
 
 export const actions = {
@@ -24,6 +27,9 @@ export const actions = {
         await camera.setup()
         const process = await camera.start()
         checkForTransmissionStart(process, ref, camera.current_session)
+        if (camera instanceof RTMPCamera) {
+            checkForEnd(process, ref, camera)
+        }
         await updateDoc(ref, {...camera})
     },
     stop : async ({ request }) => {
@@ -51,6 +57,9 @@ export const actions = {
         const process = await camera?.start()
         if (process) {
             checkForTransmissionStart(process, ref, camera?.current_session ?? 0)
+            if (camera instanceof RTMPCamera) {
+                checkForEnd(process, ref, camera)
+            }
         }
 
         await updateDoc(ref, {...camera})
@@ -90,6 +99,22 @@ function checkForTransmissionStart(process : ChildProcess, doc : DocumentReferen
                     time : timestamp
                 })
             }
+        }
+    })
+}
+
+function checkForEnd(process : ChildProcess, ref : DocumentReference, camera : ICamera) {
+    process.on('exit', async () => {
+        if (camera.name in allocatedPorts) {
+            console.log('restart')
+
+            const process = await camera.start()
+            checkForTransmissionStart(process, ref, camera?.current_session ?? 0)
+            if (camera instanceof RTMPCamera) {
+                checkForEnd(process, ref, camera)
+            }
+
+            await updateDoc(ref, {...camera})
         }
     })
 }
