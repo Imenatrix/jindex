@@ -5,6 +5,7 @@ import type { ICamera } from "./ICamera";
 import type { ChildProcess } from 'child_process'
 import processes from "../repositories/Processes";
 import { getLocalIP, getPublicIP, isPortOpen } from "$lib/utils/network";
+import { NODE_ENV } from "$env/static/private";
 
 export class RTMPCamera implements ICamera {
 
@@ -14,7 +15,7 @@ export class RTMPCamera implements ICamera {
     status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
     #process : ChildProcess | null = null
     output_uri: string
-    current_session : number = 0
+    current_session = 0
 
     constructor(name : string, input_uri : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', command? : string[], current_session? : number) {
         this.name = name
@@ -70,7 +71,12 @@ export class RTMPCamera implements ICamera {
         const localIP = getLocalIP()
         const publicIP = await getPublicIP()
 
-        this.input_uri = 'rtmp://' + publicIP + ':' + port
+        const inputIP = {
+            'development' : localIP,
+            'production' : publicIP
+        }
+
+        this.input_uri = 'rtmp://' + inputIP[NODE_ENV as 'development' | 'production'] + ':' + port
         this.current_session += 1
         this.#process = run(this.generateCommand('rtmp://' + localIP + ':' + port))
         processes[this.name] = this.#process
