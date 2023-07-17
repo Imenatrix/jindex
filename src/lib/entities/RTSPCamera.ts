@@ -13,7 +13,7 @@ export class RTSPCamera implements ICamera {
     status : 'CREATING' | 'ACTIVE' | 'STOPPED' | 'STOPPING' | 'ACTIVATING' | 'DELETING'
     #process : ChildProcess | null = null
     output_uri: string
-    current_session : number = 0
+    current_session = 0
 
     constructor(name : string, input_uri : string, status? : 'CREATING' | 'ACTIVE' | 'STOPPED', command? : string[], current_session? : number) {
         this.name = name

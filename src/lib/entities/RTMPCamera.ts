@@ -6,6 +6,7 @@ import type { ChildProcess } from 'child_process'
 import processes from "../repositories/Processes";
 import { getLocalIP, getPublicIP, isPortOpen } from "$lib/utils/network";
 import { NODE_ENV } from "$env/static/private";
+import allocatedPorts from "$lib/repositories/AllocatedPorts";
 
 export class RTMPCamera implements ICamera {
 
@@ -45,12 +46,12 @@ export class RTMPCamera implements ICamera {
             '-fflags', 'nobuffer',
             '-listen', '1',
             `-i`, input_uri,
-            `-hls_segment_filename`, `output/%03d.ts`,
+            `-hls_segment_filename`, `https://${env.PROJECT}.storage.googleapis.com/${outputName}/${this.current_session}/%03d.ts`,
             '-vcodec', 'copy',
             '-segment_list_flags', 'live',
             '-method' ,'PUT',
             '-headers', 'Cache-Control: no-cache',
-            `output/manifest.m3u8`,
+            `https://${env.PROJECT}.storage.googleapis.com/${outputName}/manifest.m3u8`,
         ]
     }
 
@@ -61,11 +62,17 @@ export class RTMPCamera implements ICamera {
     async start() {
 
         let port
-        for (port = 1935; port <= 2035; port++) {
-            const isOpen = await isPortOpen(port)
-            if (isOpen) {
-                break
+        if (this.name in allocatedPorts) {
+            port = allocatedPorts[this.name]
+        }
+        else {
+            for (port = 1935; port <= 2035; port++) {
+                const isOpen = await isPortOpen(port)
+                if (isOpen && !Object.values(allocatedPorts).includes(port)) {
+                    break
+                }
             }
+            allocatedPorts[this.name] = port
         }
 
         const localIP = getLocalIP()
@@ -86,12 +93,14 @@ export class RTMPCamera implements ICamera {
 
     async stop() {
         if (this.#process != null) {
+            delete allocatedPorts[this.name]
             const result = this.#process.kill()
             console.log('RESULT: ' + result)
             this.input_uri = 'N/A'
             this.status = 'STOPPED'
         }
         else {
+            delete allocatedPorts[this.name]
             const result = processes[this.name]?.kill()
             console.log('RESULT: ' + result)
             this.input_uri = 'N/A'
