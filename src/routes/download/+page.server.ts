@@ -1,14 +1,5 @@
-import fs from 'fs'
-import ffmpeg from 'fluent-ffmpeg'
 import '$lib/firebase'
-import { collection, getFirestore, getDocs, where, query } from 'firebase/firestore'
-import Downloader from '$lib/services/Downloader'
-import { SessionFactory } from '$lib/factories/SessionFactory.js'
-import { Storage } from '@google-cloud/storage'
-import { env } from '$env/dynamic/private'
-import { Readable } from 'stream'
-
-const SEGMENT_LENGTH = 2
+import { collection, getFirestore, getDocs } from 'firebase/firestore'
 
 export async function load() {
     const db = getFirestore()
