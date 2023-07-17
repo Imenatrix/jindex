@@ -2,7 +2,7 @@ import { CameraFactory } from '$lib/factories/CameraFactory';
 import '$lib/firebase'
 import { error } from '@sveltejs/kit';
 import { DocumentReference, addDoc, arrayUnion, collection, deleteDoc, doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-import { ChildProcess } from 'child_process'
+import type { ChildProcess } from 'child_process'
 
 
 export const actions = {
@@ -23,9 +23,7 @@ export const actions = {
         const ref = await addDoc(cameras, {...camera})
         await camera.setup()
         const process = await camera.start()
-        if (process instanceof ChildProcess) {
-            checkForTransmissionStart(process, ref, camera.current_session)
-        }
+        checkForTransmissionStart(process, ref, camera.current_session)
         await updateDoc(ref, {...camera})
     },
     stop : async ({ request }) => {
@@ -51,7 +49,7 @@ export const actions = {
         const camera = await getDoc(ref).then(value => value.data())
 
         const process = await camera?.start()
-        if (process instanceof ChildProcess) {
+        if (process) {
             checkForTransmissionStart(process, ref, camera?.current_session ?? 0)
         }
 
@@ -72,11 +70,12 @@ export const actions = {
     }
 }
 
-function checkForTransmissionStart(process : ChildProcess | null, doc : DocumentReference, id : number) {
+function checkForTransmissionStart(process : ChildProcess, doc : DocumentReference, id : number) {
     let started = false
-    process?.stderr?.on('data', (data) => {
+    process.stderr?.on('data', (data) => {
         const timestamp = new Date()
         const line : string = data.toString()
+        console.log(line)
         if (line.startsWith('frame')) {
             const params = line.split('=').map(e => e.split(' ')).flat().filter(e => e != '')
             const frame = parseInt(params[1])

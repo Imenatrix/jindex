@@ -7,7 +7,7 @@ export interface ICamera {
     input_uri : string | null,
     output_uri : string,
     current_session : number,
-    start : () => Promise<void | ChildProcess | null>,
+    start : () => Promise<ChildProcess>,
     stop : () => Promise<void>,
     delete : () => Promise<void>,
     setup : () => Promise<void>
