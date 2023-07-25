@@ -25,18 +25,20 @@
         }
     }
 
-    let t0 = new Date()
-    let t1 = new Date()
+    let t0 = newDate()
+    let t1 = newDate()
     $: t1 = t0
 
     async function handleSubmit() {
         downloading = true
+        console.log(t0)
+        console.log(coiso(t0))
         const response = await fetch('/download', {
             method: 'POST',
             body: JSON.stringify({
                 id : camera,
-                t0 : t0.toISOString(),
-                t1 : t1.toISOString()
+                t0 : coiso(t0),
+                t1 : coiso(t1)
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -51,6 +53,19 @@
         a.click();
         a.remove();
         downloading = false
+    }
+
+    function newDate() {
+        const now = new Date()
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+        return now.toISOString()
+    }
+
+    function coiso(date : string) {
+        const now = new Date()
+        const coiso = new Date(date + 'Z')
+        coiso.setMinutes(coiso.getMinutes() + now.getTimezoneOffset())
+        return coiso.toISOString()
     }
 </script>
 
