@@ -19,8 +19,8 @@ export default class Downloader {
             end.setSeconds(end.getSeconds() + session_length)
             return end
         })
-        for (start = 0; end_times[start] < t0; start++) {}
-        for (end = 0; start_times[end] < t1; end++) {}
+        for (start = 0; end_times[start] < t0; start++) { /* empty */ }
+        for (end = 0; start_times[end] < t1; end++) { /* empty */ }
         end--
         start = Math.max(0, start)
         start = Math.min(this.sessions.length - 1, start)
