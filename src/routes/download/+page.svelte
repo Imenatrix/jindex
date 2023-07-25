@@ -10,8 +10,8 @@
             method: 'POST',
             body: JSON.stringify({
                 id : id,
-                t0 : t0,
-                t1 : t1
+                t0 : t0.toISOString(),
+                t1 : t1.toISOString()
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -23,8 +23,8 @@
         a.href = url;
         a.download = "video.mp4";
         document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-        a.click();    
-        a.remove();  
+        a.click();
+        a.remove();
     }
 </script>
 
