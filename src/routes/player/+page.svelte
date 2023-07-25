@@ -35,8 +35,8 @@
             method: 'POST',
             body: JSON.stringify({
                 id : camera,
-                t0 : t0,
-                t1 : t1
+                t0 : t0.toISOString(),
+                t1 : t1.toISOString()
             }),
             headers: {
                 'Content-Type': 'application/json'
